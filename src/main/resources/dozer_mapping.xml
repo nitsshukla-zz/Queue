@@ -19,4 +19,56 @@
             <b>requestId</b>
         </field>
     </mapping>
+    <mapping>
+        <class-a>com.navi.app.model.CallbackInfo</class-a>
+        <class-b>com.navi.app.dtos.CallbackDetails</class-b>
+        <field>
+            <a>method</a>
+            <b>method</b>
+        </field>
+        <field>
+            <a>endpoint</a>
+            <b>endpoint</b>
+        </field>
+        <field>
+            <a>headers</a>
+            <b>headers</b>
+        </field>
+    </mapping>
+    <mapping>
+        <class-a>com.navi.app.model.Subscriber</class-a>
+        <class-b>com.navi.app.dtos.SubscriberInfo</class-b>
+        <field>
+            <a>id</a>
+            <b>id</b>
+        </field>
+        <field>
+            <a>name</a>
+            <b>name</b>
+        </field>
+        <field>
+            <a>queue.name</a>
+            <b>queueName</b>
+        </field>
+        <field>
+            <a>callbackInfo</a>
+            <b>callbackDetails</b>
+        </field>
+    </mapping>
+    <mapping>
+        <class-a>com.navi.app.model.Subscriber</class-a>
+        <class-b>com.navi.app.dtos.SubscribeRequest</class-b>
+        <field>
+            <a>name</a>
+            <b>name</b>
+        </field>
+        <field>
+            <a>queue.name</a>
+            <b>queueName</b>
+        </field>
+        <field>
+            <a>callbackInfo</a>
+            <b>callbackDetails</b>
+        </field>
+    </mapping>
 </mappings>

@@ -23,7 +23,7 @@ public class QueuePayload {
   private Long id;
 
   @ManyToOne
-  private QueueDAO topic;
+  private QueueDAO queue;
 
   @OneToOne
   @JoinColumn(name = "`OFFSET`")

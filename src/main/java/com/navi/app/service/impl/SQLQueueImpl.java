@@ -22,7 +22,7 @@ public class SQLQueueImpl implements Queue {
   @Override
   public QueuePayload add(Message message) {
     QueuePayload queuePayload = dozerBeanMapper.map(message, QueuePayload.class);
-    queuePayload.setTopic(topic);
+    queuePayload.setQueue(topic);
     return queuePayloadRepo.save(queuePayload);
   }
 

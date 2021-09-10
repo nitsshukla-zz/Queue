@@ -1,8 +1,10 @@
 package com.navi.app.service.impl;
 
 import com.navi.app.dtos.Message;
+import com.navi.app.model.OffsetSequenceNumber;
 import com.navi.app.model.QueueDAO;
 import com.navi.app.model.QueuePayload;
+import com.navi.app.repo.QueuePayloadOffsetRepo;
 import com.navi.app.repo.QueuePayloadRepo;
 import com.navi.app.service.Queue;
 import lombok.RequiredArgsConstructor;

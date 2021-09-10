@@ -6,4 +6,6 @@ import com.navi.app.dtos.SubscriberInfo;
 public interface SubscriberService {
   SubscriberInfo subscribe(SubscribeRequest subscribeRequest);
   SubscriberInfo fetchInfo(String name);
+
+  void invoke(String queueName);
 }

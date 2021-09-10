@@ -5,10 +5,13 @@ import com.navi.app.model.Subscriber;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public
 interface SubscriberRepo extends CrudRepository<Subscriber, Long> {
   Optional<Subscriber> findByName(String name);
+
+  List<Subscriber> findByQueue_Name(String queueName);
 }

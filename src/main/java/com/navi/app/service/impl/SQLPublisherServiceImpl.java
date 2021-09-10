@@ -6,6 +6,7 @@ import com.navi.app.model.QueuePayload;
 import com.navi.app.service.PublisherService;
 import com.navi.app.service.Queue;
 import com.navi.app.service.QueueDefinitionService;
+import com.navi.app.service.SubscriberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dozer.DozerBeanMapper;
@@ -17,11 +18,13 @@ import org.springframework.stereotype.Component;
 public class SQLPublisherServiceImpl implements PublisherService {
   private final QueueDefinitionService queueDefinitionService;
   private final DozerBeanMapper mapper;
+  private final SubscriberService subscriberService;
   @Override
   public Message add(Message msg, String queueName) {
     Queue queue = queueDefinitionService.get(queueName);
     try {
       QueuePayload payload = queue.add(msg);
+      subscriberService.invoke(queueName);
       return mapper.map(payload, Message.class);
     } catch (DataIntegrityViolationException e) {
       log.warn("idempotent request-id key most likely is not same");
@@ -30,5 +33,6 @@ public class SQLPublisherServiceImpl implements PublisherService {
         throw new IdempotencyException("Kindly check Idempotent request-id, key " + msg.getRequestId());
       throw e;
     }
+
   }
 }

@@ -21,7 +21,7 @@ public class Subscriber {
   @Column(nullable = false, unique = true)
   private String name;
   @Column(name = "`OFFSET`", columnDefinition = "bigint default 0")
-  private Long offset;
+  private Long offset = 0L;
   @ManyToOne
   private QueueDAO queue;
   @OneToOne(cascade = CascadeType.ALL)

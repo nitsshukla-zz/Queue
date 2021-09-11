@@ -1,16 +1,18 @@
 package com.navi.app.integration;
 
+import com.navi.app.QueueApplication;
 import com.navi.app.dtos.Message;
 import com.navi.app.dtos.QueueInfo;
 import com.navi.app.dtos.SubscribeRequest;
 import com.navi.app.dtos.SubscriberInfo;
-import com.navi.app.helper.CallbackHelper;
+import com.navi.app.dtos.SubscriberPayload;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -20,8 +22,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @CucumberContextConfiguration
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class StepDefinitions extends IntegrationTest {
+@SpringBootTest(classes = QueueApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@ContextConfiguration(QueueApplication.class)
+public class StepDefinitionsTest extends IntegrationTest {
 
   private static final String JSON = "{\n" +
       "    \"message\": \"{\\\"nam\\\":\\\"aparajaita\\\"}\",\n" +
@@ -52,8 +55,8 @@ public class StepDefinitions extends IntegrationTest {
   }
   @Then("receive a message")
   public void receive_a_message() {
-    assertTrue(dummyController.bodyMessagesReceived.stream().map(CallbackHelper.SubscriberPayload::getPayload).anyMatch(JSON::equals));
-    assertTrue(dummyController.bodyMessagesReceived.stream().map(CallbackHelper.SubscriberPayload::getSubscriberName).anyMatch(this.subscriberName::equals));
+    assertTrue(dummyController.bodyMessagesReceived.stream().map(SubscriberPayload::getPayload).anyMatch(JSON::equals));
+    assertTrue(dummyController.bodyMessagesReceived.stream().map(SubscriberPayload::getSubscriberName).anyMatch(this.subscriberName::equals));
     Set<Map.Entry> entries = new HashSet<>(HEADERS.entrySet());
     Set<Map.Entry> headers = new HashSet<>(dummyController.headersReceived.entrySet());
     entries.removeAll(headers);

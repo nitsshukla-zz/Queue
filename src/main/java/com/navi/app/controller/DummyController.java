@@ -1,6 +1,5 @@
 package com.navi.app.controller;
 
-import com.navi.app.helper.CallbackHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,11 +14,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @RestController
 @Slf4j
 public class DummyController {
-  public final ConcurrentLinkedQueue<CallbackHelper.SubscriberPayload> bodyMessagesReceived = new ConcurrentLinkedQueue<>();
+  public final ConcurrentLinkedQueue<com.navi.app.dtos.SubscriberPayload> bodyMessagesReceived = new ConcurrentLinkedQueue<>();
   public final ConcurrentHashMap<String, String> headersReceived = new ConcurrentHashMap<>();
 
   @PostMapping("/v1/dummy")
-  public ResponseEntity<String> dummyPost(@RequestBody CallbackHelper.SubscriberPayload body,
+  public ResponseEntity<String> dummyPost(@RequestBody com.navi.app.dtos.SubscriberPayload body,
                                           @RequestHeader Map<String, String> headerMap) {
     log.info("Received dummy request, body: " + body);
     log.info("Received dummy request, header: " + headerMap);

@@ -6,11 +6,17 @@ plugins {
 
 group = 'com.navi.app'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+
+task RunIntegrationTest(type: Test) {
+	include "com.navi.app.integration.StepDefinitionsTest.class"
+}
 
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
+	}
+	cucumberRuntime {
+		extendsFrom testImplementation
 	}
 }
 
@@ -37,4 +43,15 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+task cucumber() {
+	dependsOn assemble, testClasses
+	doLast {
+		javaexec {
+			main = "io.cucumber.core.cli.Main"
+			classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+			args = ['--plugin', 'pretty', '--glue', 'gradle.cucumber', 'src/test/resources']
+		}
+	}
 }

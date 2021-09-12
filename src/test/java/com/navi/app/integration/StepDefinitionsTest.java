@@ -5,20 +5,21 @@ import com.navi.app.dtos.Message;
 import com.navi.app.dtos.QueueInfo;
 import com.navi.app.dtos.SubscribeRequest;
 import com.navi.app.dtos.SubscriberInfo;
-import com.navi.app.dtos.SubscriberPayload;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.spring.CucumberContextConfiguration;
+import org.awaitility.core.ConditionFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @CucumberContextConfiguration
@@ -30,6 +31,7 @@ public class StepDefinitionsTest extends IntegrationTest {
       "    \"message\": \"{\\\"nam\\\":\\\"aparajaita\\\"}\",\n" +
       "    \"requestId\": \"ee312312\"\n" +
       "}";
+  public static final ConditionFactory AWAIT_15_SECS = await().atMost(15L, TimeUnit.SECONDS);
   private String queueName, subscriberName;
 
   @Given("Created a queue {string} and subscribed as {string}")
@@ -55,11 +57,19 @@ public class StepDefinitionsTest extends IntegrationTest {
   }
   @Then("receive a message")
   public void receive_a_message() {
-    assertTrue(dummyController.bodyMessagesReceived.stream().map(SubscriberPayload::getPayload).anyMatch(JSON::equals));
-    assertTrue(dummyController.bodyMessagesReceived.stream().map(SubscriberPayload::getSubscriberName).anyMatch(this.subscriberName::equals));
+    AWAIT_15_SECS
+        .until(() -> payloadReceived(JSON, this.subscriberName));
+    assertTrue(payloadReceived(JSON, this.subscriberName));
     Set<Map.Entry> entries = new HashSet<>(HEADERS.entrySet());
     Set<Map.Entry> headers = new HashSet<>(dummyController.headersReceived.entrySet());
     entries.removeAll(headers);
     assertTrue(entries.isEmpty());
+  }
+
+  private Boolean payloadReceived(String data, String subscriberName) {
+    return dummyController.bodyMessagesReceived
+        .stream()
+        .filter(message -> message.getPayload().equals(data))
+        .anyMatch(message -> message.getSubscriberName().equals(subscriberName));
   }
 }

@@ -1,9 +1,10 @@
 package com.navi.app.service.impl;
 
-import com.navi.app.helper.CallbackHelper;
+import com.navi.app.config.QueueCallbackExecutor;
 import com.navi.app.dtos.Message;
 import com.navi.app.dtos.SubscribeRequest;
 import com.navi.app.dtos.SubscriberInfo;
+import com.navi.app.helper.CallbackHelper;
 import com.navi.app.model.QueueDAO;
 import com.navi.app.model.Subscriber;
 import com.navi.app.repo.QueuePayloadRepo;
@@ -12,6 +13,7 @@ import com.navi.app.repo.SubscriberRepo;
 import com.navi.app.service.SubscriberService;
 import lombok.RequiredArgsConstructor;
 import org.dozer.DozerBeanMapper;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class SubscriberServiceImpl implements SubscriberService {
   private final QueueRepo queueRepo;
   private final CallbackHelper callbackHelper;
   private final QueuePayloadRepo queuePayloadRepo;
+  private final QueueCallbackExecutor queueCallbackExecutor;
 
   @Override
   public SubscriberInfo subscribe(SubscribeRequest subscribeRequest) {
@@ -44,13 +47,25 @@ public class SubscriberServiceImpl implements SubscriberService {
   public void invoke(String queueName) {
     List<Subscriber> subscribers = subscriberRepo.findByQueue_Name(queueName);
     for(Subscriber subscriber: subscribers) {
-      SubscriberInfo subscriberInfo = dozerBeanMapper.map(subscriber, SubscriberInfo.class);
-      //TODO: acquire lock on subscriber
-      queuePayloadRepo.findByQueue_NameAndOffset_NumberGreaterThan(queueName, subscriber.getOffset())
-          .stream()
-          .map(message -> dozerBeanMapper.map(message, Message.class))
-          .forEach(message -> callbackHelper.invoke(subscriberInfo, message));
+      String lockKey = subscriber.getName();
+      queueCallbackExecutor.execute(() -> this.findAllMessagesAndSendCallbacks(subscriber), lockKey);
     }
+  }
+
+  private void findAllMessagesAndSendCallbacks(Subscriber subscriber) {
+    SubscriberInfo subscriberInfo = dozerBeanMapper.map(subscriber, SubscriberInfo.class);
+    queuePayloadRepo.
+        findByQueue_NameAndOffset_NumberGreaterThan(subscriber.getQueue().getName(), subscriber.getOffset())
+        .stream()
+        .map(message -> Pair.of(dozerBeanMapper.map(message, Message.class), message.getOffset().getNumber()))
+        .forEach(pair -> this.callBackAndUpdateOffset(pair, subscriberInfo));
+  }
+
+  public void callBackAndUpdateOffset(Pair<Message, Long> messagePair, SubscriberInfo subscriberInfo) {
+    Message message = messagePair.getFirst();
+    Long offset = messagePair.getSecond();
+    callbackHelper.invoke(subscriberInfo, message);
+    subscriberRepo.setOffset(subscriberInfo.getId(), offset);
   }
 
   private void updateQueueInfo(Subscriber subscriber, String queueName) {

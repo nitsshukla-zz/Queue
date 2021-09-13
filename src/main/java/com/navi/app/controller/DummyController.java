@@ -19,9 +19,9 @@ public class DummyController {
 
   @PostMapping("/v1/dummy")
   public ResponseEntity<String> dummyPost(@RequestBody com.navi.app.dtos.SubscriberPayload body,
-                                          @RequestHeader Map<String, String> headerMap) {
-    log.info("Received dummy request, body: " + body);
-    log.info("Received dummy request, header: " + headerMap);
+                                          @RequestHeader Map<String, String> headerMap) throws InterruptedException {
+    log.debug("Received dummy request, body: " + body);
+    log.debug("Received dummy request, header: " + headerMap);
     bodyMessagesReceived.add(body);
     headersReceived.putAll(headerMap);
     return ResponseEntity.ok().build();

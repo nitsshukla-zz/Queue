@@ -7,10 +7,6 @@ plugins {
 group = 'com.navi.app'
 version = '0.0.1-SNAPSHOT'
 
-task RunIntegrationTest(type: Test) {
-	include "com.navi.app.integration.StepDefinitionsTest.class"
-}
-
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -28,7 +24,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation "org.springframework.boot:spring-boot-starter-web"
 	implementation "org.springframework.boot:spring-boot-starter-validation"
+	implementation 'org.springframework.retry:spring-retry:1.2.5.RELEASE'
 	implementation "net.sf.dozer:dozer:5.5.1"
+	implementation 'net.javacrumbs.shedlock:shedlock-spring:4.26.0'
+	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.26.0'
 	implementation "com.google.code.gson:gson:2.8.8"
 	implementation "com.vladmihalcea:hibernate-types-55:2.12.1"
 	implementation("com.squareup.okhttp3:okhttp:4.9.0")

@@ -1,6 +1,6 @@
 package com.navi.app.service.impl;
 
-import com.navi.app.config.QueueCallbackExecutor;
+import com.navi.app.config.DistributedLockExecutor;
 import com.navi.app.dtos.Message;
 import com.navi.app.dtos.SubscribeRequest;
 import com.navi.app.dtos.SubscriberInfo;
@@ -26,14 +26,16 @@ public class SubscriberServiceImpl implements SubscriberService {
   private final QueueRepo queueRepo;
   private final CallbackHelper callbackHelper;
   private final QueuePayloadRepo queuePayloadRepo;
-  private final QueueCallbackExecutor queueCallbackExecutor;
+  private final DistributedLockExecutor distributedLockExecutor;
 
   @Override
   public SubscriberInfo subscribe(SubscribeRequest subscribeRequest) {
     checkSubscriberNameAlreadyExists(subscribeRequest);
     Subscriber subscriber = dozerBeanMapper.map(subscribeRequest, Subscriber.class);
     updateQueueInfo(subscriber, subscribeRequest.getQueueName());
-    return dozerBeanMapper.map(subscriberRepo.save(subscriber), SubscriberInfo.class);
+    SubscriberInfo subscriberInfo = dozerBeanMapper.map(subscriberRepo.save(subscriber), SubscriberInfo.class);
+    invoke(subscriber);
+    return subscriberInfo;
   }
 
   @Override
@@ -47,9 +49,13 @@ public class SubscriberServiceImpl implements SubscriberService {
   public void invoke(String queueName) {
     List<Subscriber> subscribers = subscriberRepo.findByQueue_Name(queueName);
     for(Subscriber subscriber: subscribers) {
-      String lockKey = subscriber.getName();
-      queueCallbackExecutor.execute(() -> this.findAllMessagesAndSendCallbacks(subscriber), lockKey);
+      invoke(subscriber);
     }
+  }
+
+  public void invoke(Subscriber subscriber) {
+    String lockKey = subscriber.getName();
+    distributedLockExecutor.execute(() -> this.findAllMessagesAndSendCallbacks(subscriber), lockKey);
   }
 
   private void findAllMessagesAndSendCallbacks(Subscriber subscriber) {

@@ -33,7 +33,7 @@ public class LockConfig {
   }
 
   @Bean
-  public QueueCallbackExecutor getQueueCallbackExecutor(LockProvider lockProvider) {
+  public DistributedLockExecutor getQueueCallbackExecutor(LockProvider lockProvider) {
     LockingTaskExecutor executor = new DefaultLockingTaskExecutor(lockProvider);
     Duration lockAtMostUntil = Duration.ofSeconds(subscriberExecutorLockAtmostInMillis);
     Duration lockAtLeast = Duration.ofMillis(subscriberExecutorLockAtleastInMillis);

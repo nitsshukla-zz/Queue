@@ -1,0 +1,10 @@
+{
+  "id": 123,
+  "name": "Nitin",
+  "offset": 123,
+  "queue": {
+    "id": 123,
+    "name": "blah"
+  },
+  "callbackInfo" : {}
+}

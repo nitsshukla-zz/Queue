@@ -3,11 +3,14 @@ package com.navi.app.helper.impl;
 import com.google.gson.Gson;
 import com.navi.app.helper.HTTPHelper;
 import lombok.SneakyThrows;
+import okhttp3.ConnectionPool;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.internal.connection.RealConnectionPool;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,16 +26,19 @@ public class OKHTTPHelper implements HTTPHelper {
       = MediaType.get("application/json; charset=utf-8");
   public final static Function<Object, RequestBody> getBody = data -> RequestBody.create(GSON.toJson(data), JSON);
 
-  @Value("${http.timeout.connect}")
-  private long httpTimeoutConnect;
+  private final OkHttpClient okHttpClient;
 
-  @Value("${http.timeout.read}")
-  private long httpTimeoutRead;
-
-  private final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-      .connectTimeout(httpTimeoutConnect, TimeUnit.MILLISECONDS)
-      .readTimeout(httpTimeoutRead, TimeUnit.MILLISECONDS)
-      .build();
+  @Autowired
+  public OKHTTPHelper(@Value("${http.timeout.connectInMillis}") long httpTimeoutConnect,
+                      @Value("${http.timeout.readInMillis}") long httpTimeoutRead,
+                      @Value("${http.connection.pool.maxIdleConnection}") int maxIdleConnection,
+                      @Value("${http.connection.pool.keepAliveDurationInMins}") long keepAliveDurationInMins) {
+    okHttpClient = new OkHttpClient.Builder()
+        .connectTimeout(httpTimeoutConnect, TimeUnit.MILLISECONDS)
+        .readTimeout(httpTimeoutRead, TimeUnit.MILLISECONDS)
+        .connectionPool(new ConnectionPool(maxIdleConnection, keepAliveDurationInMins, TimeUnit.MINUTES))
+        .build();
+  }
 
   @Override
   public void call(String method, String url, Object data, Map<String, String> headers) throws IOException {

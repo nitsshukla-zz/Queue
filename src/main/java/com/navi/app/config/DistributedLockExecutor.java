@@ -1,5 +1,5 @@
 package com.navi.app.config;
 
-public interface QueueCallbackExecutor {
+public interface DistributedLockExecutor {
   void execute(Runnable runnable, String key);
 }

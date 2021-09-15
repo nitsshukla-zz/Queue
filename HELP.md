@@ -13,8 +13,48 @@
 #Service Model
 ![alt text](./ClassDiagram.svg)
 
-
 # Getting Started
+* Start the application
+    * `gradle build` (Make sure you've gradle-6.8+ version for spring-boot compatibility)
+    * No external database required, since it uses H2
+    * `gradle bootRun`
+
+* Access swagger at http://localhost:9081/swagger-ui/#/
+* Create queue:
+    *  `curl --location --request POST 'localhost:9081/v1/admin/queue/test'`
+* Subscribe to the queue:
+```    
+curl --location --request POST 
+      'http://localhost:9081/v1/subscribe/' \
+      --header 'Content-Type: application/json' \
+      --data-raw '{
+          "name": "nitin",
+          "queueName": "test",
+          "callbackDetails": {
+              "method": "POST",
+              "endpoint": "http://localhost:9081/v1/dummy",
+              "headers": {
+                "API-KEY": "dusaida312#@"
+              }
+          }
+      }'
+```
+* Send message with unique request-ID
+
+```
+curl --location --request POST 
+    'localhost:9081/v1/queue/test' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "message": "{\"name\":\"aparajaita\"}",
+        "requestId": "ee312312"
+    }'
+```
+* Notice the callback at dummy controller via logs.
+
+* Alternatively, you can run cucumber tests at `test/resources/test.feature` via Intellij
+  * `CLI` run is `TODO`
+
 
 ### Reference Documentation
 For further reference, please consider the following sections:

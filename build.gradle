@@ -27,7 +27,7 @@ dependencies {
 	implementation 'org.springframework.retry:spring-retry:1.2.5.RELEASE'
 	// https://mvnrepository.com/artifact/commons-io/commons-io
 	implementation 'commons-io:commons-io:2.6'
-
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 	implementation "net.sf.dozer:dozer:5.5.1"
 	implementation 'net.javacrumbs.shedlock:shedlock-spring:4.26.0'
 	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.26.0'
